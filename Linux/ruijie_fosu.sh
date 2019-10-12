@@ -6,8 +6,13 @@ CaptiveServer="http://www.google.cn/generate_204"
 
 #If received logout parameter, send a logout request to eportal server
 if [ "${1}" = "logout" ]; then
-  userIndex=`curl -s -A "${userAgent}" -I http://10.10.10.4/eportal/redirectortosuccess.jsp | grep -o 'userIndex=.*'` #Fetch user index for logout request
-  logoutResult=`curl -s -A "${userAgent}" -d "${userIndex}" http://10.10.10.4/eportal/InterFace.do?method=logout`
+  interFace=""
+  if [ -n "${2}" ]; then
+    interFace="--interface ${2} "
+  fi
+
+  userIndex=`curl -s ${interFace}-A "${userAgent}" -I http://10.10.10.4/eportal/redirectortosuccess.jsp | grep -o 'userIndex=.*'` #Fetch user index for logout request
+  logoutResult=`curl -s ${interFace}-A "${userAgent}" -d "${userIndex}" http://10.10.10.4/eportal/InterFace.do?method=logout`
   echo $logoutResult
   exit 0
 fi
@@ -22,9 +27,8 @@ if [ "${#}" -lt "3" ]; then
   exit 1
 fi
 
-#If received an interface parameter, set the right interface to curl
+#If received interface parameter, set the right interface to curl
 interFace=""
-
 if [ -n "${4}" ]; then
   interFace="--interface ${4} "
 fi
